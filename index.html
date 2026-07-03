@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AT Youtube Downloader</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Title Bar -->
+        <div class="titlebar">
+            <div class="titlebar-title">
+                <span class="icon">▼</span>
+                AT Youtube Downloader
+            </div>
+            <div class="titlebar-controls" dir="ltr">
+                <button class="btn-minimize" id="btn-minimize">_</button>
+                <button class="btn-close" id="btn-close">×</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="center-content">
+            <div class="title-container">
+                <h1>YouTube Downloader</h1>
+                <p class="credit-label">By Eng. Ahmed Atef</p>
+            </div>
+
+            <div class="status-msg" id="status-label">قم بلصق الرابط واختر الصيغة</div>
+
+            <div class="input-group">
+                <input type="text" id="url-input" placeholder="https://youtube.com/..." dir="ltr">
+                <button class="btn btn-secondary" id="paste-btn">لصق</button>
+            </div>
+
+            <div class="formats-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="chk-mp3" checked>
+                    MP3 (صوت)
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="chk-mp4">
+                    MP4 (فيديو)
+                </label>
+            </div>
+
+            <button class="btn btn-primary big-btn" id="download-btn">اختيار مكان الحفظ وبدء التنزيل</button>
+
+            <button class="btn btn-secondary hidden" id="open-folder-btn">📂 فتح مجلد التنزيلات</button>
+
+            <!-- Progress section -->
+            <div class="progress-container hidden" id="progress-container">
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progress-bar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="renderer.js"></script>
+</body>
+</html>

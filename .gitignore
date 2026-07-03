@@ -1,0 +1,54 @@
+# ==============================
+# Node.js / Electron
+# ==============================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build output (Electron packager / builder)
+dist/
+out/
+build/
+
+# ==============================
+# Python
+# ==============================
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# ==============================
+# OS Files
+# ==============================
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+*.lnk
+
+# ==============================
+# IDE / Editors
+# ==============================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ==============================
+# Sensitive / Secrets
+# ==============================
+.env
+.env.*
+*.pem
+*.key
+secrets.*
