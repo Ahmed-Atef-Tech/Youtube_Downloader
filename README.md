@@ -3,8 +3,8 @@
   <h1>AT Youtube Downloader</h1>
   <p><em>تحميل يوتيوب بصيغة MP3 و MP4 بضغطة زر</em></p>
 
+  <img src="https://img.shields.io/badge/Electron-UI-47848F?logo=electron&logoColor=white" />
   <img src="https://img.shields.io/badge/Python-3.10+-blue?logo=python&logoColor=white" />
-  <img src="https://img.shields.io/badge/PyQt6-UI-green?logo=qt" />
   <img src="https://img.shields.io/badge/yt--dlp-Powered-red?logo=youtube" />
   <img src="https://img.shields.io/badge/Platform-Windows-lightgrey?logo=windows" />
 </div>
@@ -16,6 +16,14 @@
 **AT Youtube Downloader** هو تطبيق سطح مكتب احترافي مبني بـ **Python** و **PyQt6**، يتيح للمستخدم تحميل مقاطع يوتيوب بجودة عالية بصيغة **MP3 (صوت)** أو **MP4 (فيديو)** عبر واجهة رسومية أنيقة وسهلة الاستخدام.
 
 ---
+
+## 🆕 الجديد في 2.0
+
+- 📃 **تحميل Playlist كاملة**: حط لينك الـ playlist، البرنامج يجيب كل الفيديوهات ويعرضها في قايمة تختار منها اللي عايزه
+- 📊 شريط تقدّم للـ playlist كلها (فيديو 3 من 12) جنب تقدّم الملف الحالي
+- 🎚️ اختيار الجودة: MP3 (عالية / متوسطة / منخفضة) أو MP4 حتى أعلى دقة متاحة
+- ⏹️ إلغاء التحميل في أي وقت
+- 🖥️ واجهة Electron جديدة بالكامل
 
 ## ✨ المميزات
 
@@ -66,13 +74,17 @@ python "MP3 Downloader.py"
 
 ---
 
-## 🛠️ بناء EXE بنفسك (Electron)
+## 🛠️ تشغيل نسخة Electron وبناء EXE
 
 ```bash
 npm install
 npm run start        # تشغيل محلي
-npm run dist         # بناء ملف EXE
+npm run dist         # بناء ملف Setup.exe في فولدر dist
 ```
+
+> نسخة Electron بتستخدم **yt-dlp**: يا إما يكون متسطب على الجهاز (`pip install yt-dlp`)،
+> يا إما تحط `yt-dlp.exe` و `ffmpeg.exe` في فولدر اسمه `bin` جنب `main.js`،
+> وساعتها `npm run dist` بيحطهم جوه البرنامج فاللي هيسطّبه مش محتاج حاجة تانية.
 
 ---
 

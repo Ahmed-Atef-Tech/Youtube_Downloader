@@ -52,3 +52,7 @@ Desktop.ini
 *.pem
 *.key
 secrets.*
+
+# Bundled tools and backups (kept out of git)
+bin/
+*.bak

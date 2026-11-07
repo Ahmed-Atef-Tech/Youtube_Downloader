@@ -1,26 +1,62 @@
 {
   "name": "youtube_downloader",
-  "version": "1.0.0",
-  "description": "AT Youtube Downloader is a modern desktop application built with Python and PyQt6 that lets users download YouTube content as high‑quality MP3 audio and MP4 video files with a simple graphical interface.",
+  "version": "2.0.0",
+  "description": "AT Youtube Downloader: download a single YouTube video or a whole playlist as MP3 or MP4, with a modern Electron UI.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dist": "electron-builder --win nsis --x64"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Ahmed-Atef-Tech/Youtube_Downloader.git"
   },
   "build": {
-    "appId": "com.ahmedatef.youtubedownloader",
+    "appId": "tech.ahmedatef.ytdownloader",
     "productName": "AT Youtube Downloader",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "icon.png",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "bin",
+        "to": "bin",
+        "filter": [
+          "yt-dlp.exe",
+          "ffmpeg.exe"
+        ]
+      }
+    ],
     "win": {
-      "target": "nsis",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "icon": "icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "AT Youtube Downloader",
+      "artifactName": "AT-Youtube-Downloader-Setup-${version}.exe"
     }
   },
   "keywords": [],
-  "author": "",
+  "author": "Ahmed Atef",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
@@ -28,10 +64,7 @@
   },
   "homepage": "https://github.com/Ahmed-Atef-Tech/Youtube_Downloader#readme",
   "devDependencies": {
-    "electron": "^42.5.0",
-    "electron-builder": "^26.15.3"
-  },
-  "dependencies": {
-    "youtube-dl-exec": "^3.1.8"
+    "electron": "^36.4.0",
+    "electron-builder": "^25.1.8"
   }
 }

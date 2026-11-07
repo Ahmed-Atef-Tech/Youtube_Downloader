@@ -1,62 +1,854 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AT Youtube Downloader</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <title>AT Youtube Downloader</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-dark:     #0a0a0a;
+      --bg-panel:    rgba(255,255,255,0.04);
+      --bg-card:     rgba(255,255,255,0.02);
+      --accent:      #2dd9a3;
+      --accent-dark: #14b8a6;
+      --accent-glow: rgba(45,217,163,0.35);
+      --accent-dim:  rgba(45,217,163,0.15);
+      --red:         #e08585;
+      --yellow:      #f0b86e;
+      --blue:        #58a6ff;
+      --text-1:      #ffffff;
+      --text-2:      rgba(255,255,255,0.4);
+      --text-3:      rgba(255,255,255,0.2);
+      --border:      rgba(255,255,255,0.08);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    ::-webkit-scrollbar{width:4px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:4px}
+    html,body{width:100vw;height:100vh;background:transparent;overflow:hidden;font-family:'Inter',system-ui,sans-serif;color:var(--text-1);user-select:none}
+
+    /* APP SHELL */
+    .app{width:100%;height:100%;display:grid;grid-template-rows:44px 1fr auto;background:linear-gradient(145deg,#0a0a0a,#131313,#1b1b1d);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.6);clip-path:inset(0 round 20px)}
+
+    /* TITLEBAR */
+    .titlebar{-webkit-app-region:drag;grid-row:1;display:flex;align-items:center;padding:0 18px;background:var(--bg-panel);border-bottom:1px solid var(--border);gap:10px}
+    .titlebar-logo{width:22px;height:22px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;box-shadow:0 2px 8px var(--accent-glow)}
+    .titlebar-name{font-size:12px;font-weight:600;letter-spacing:.2px;color:var(--text-1);flex:1}
+    .titlebar-chip{font-size:10px;color:var(--text-3);background:rgba(255,255,255,0.04);border:1px solid var(--border);padding:2px 8px;border-radius:20px}
+    .win-btns{-webkit-app-region:no-drag;display:flex;gap:6px;margin-left:6px}
+    .win-btn{width:26px;height:26px;border:none;border-radius:7px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+    .wb-min{background:rgba(255,255,255,0.08);color:rgba(255,255,255,.5)}.wb-min:hover{background:rgba(255,255,255,0.15);color:#fff}
+    .wb-max{background:rgba(255,255,255,0.08);color:rgba(255,255,255,.5)}.wb-max:hover{background:rgba(255,255,255,0.15);color:#fff}
+    .wb-close{background:rgba(229,72,77,0.15);color:var(--red)}.wb-close:hover{background:rgba(229,72,77,0.4);color:#fff}
+
+    /* BODY */
+    .body{grid-row:2;display:grid;grid-template-columns:255px 1fr;overflow:hidden}
+
+    /* LEFT PANEL */
+    .left-panel{background:rgba(255,255,255,0.015);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:16px;gap:14px;overflow-y:auto}
+    .thumb-hero{width:100%;aspect-ratio:16/9;background:rgba(255,255,255,0.03);border-radius:12px;overflow:hidden;position:relative;border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
+    .thumb-hero img{width:100%;height:100%;object-fit:cover;display:none}
+    .thumb-hero img.loaded{display:block}
+    .thumb-empty{display:flex;flex-direction:column;align-items:center;gap:8px}
+    .thumb-icon{font-size:28px;opacity:.18}
+    .thumb-hint{font-size:10px;color:var(--text-3);text-align:center;line-height:1.5}
+    .thumb-badge{position:absolute;bottom:7px;right:7px;background:rgba(0,0,0,.75);color:var(--text-1);font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;display:none}
+    .thumb-badge.visible{display:block}
+    .meta-title{font-size:12px;font-weight:600;line-height:1.5;color:var(--text-1);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+    .meta-title.empty{color:var(--text-3);font-weight:400;font-style:italic}
+    .meta-rows{display:flex;flex-direction:column;gap:5px;width:95px;justify-content:center}
+    .meta-row{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-2)}
+    .meta-row-icon{font-size:12px;flex-shrink:0;width:16px;text-align:center}
+    .meta-row-val{color:var(--text-1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+    
+    /* CHECKLIST */
+    .checklist-wrap{display:none;flex-direction:column;gap:8px;flex:1;min-height:0;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:8px;margin-top:4px}
+    .checklist-wrap.show{display:flex}
+    .checklist-header{display:flex;justify-content:space-between;align-items:center;font-size:10px;padding:0 4px 4px;border-bottom:1px solid var(--border)}
+    .checklist-btn{background:none;border:none;color:var(--accent);cursor:pointer;font-size:10px;font-weight:600;font-family:'Inter'}
+    .checklist-btn:hover{color:var(--text-1)}
+    .checklist-items{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px;padding-right:4px}
+    .check-item{display:flex;align-items:flex-start;gap:6px;font-size:11px;color:var(--text-2);cursor:pointer;padding:4px;border-radius:6px;transition:background .15s}
+    .check-item:hover{background:rgba(255,255,255,0.04);color:var(--text-1)}
+    .check-item input{margin-top:2px;accent-color:var(--accent);cursor:pointer}
+    .check-title{flex:1;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.4}
+    .check-dur{font-size:9px;color:var(--text-3);white-space:nowrap;margin-top:2px}
+
+    
+    /* MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(3px);z-index:999;display:none;align-items:center;justify-content:center;padding:20px}
+    .modal-overlay.show{display:flex}
+    .modal-content{width:460px;max-height:85vh;background:#151515;border:1px solid var(--border);border-radius:12px;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.6);overflow:hidden}
+    .modal-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--bg-panel)}
+    .modal-title{font-size:14px;font-weight:600}
+    .modal-body{padding:14px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:6px}
+    .modal-footer{padding:14px 18px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;background:var(--bg-panel)}
+    
+    .btn-edit-sel{background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text-1);padding:6px 12px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;display:none;width:100%;margin-top:8px}
+    .btn-edit-sel.show{display:block}
+    .btn-edit-sel:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2)}
+    
+    .btn-modal-close{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#06231c;border:none;padding:7px 18px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
+    .btn-modal-close:hover{box-shadow:0 4px 12px var(--accent-glow)}
+    .btn-modal-outline{background:transparent;border:1px solid var(--border);color:var(--text-2);padding:7px 18px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+    .btn-modal-outline:hover{background:rgba(255,255,255,0.06);color:var(--text-1)}
+    
+    /* Bigger checklist for modal */
+    .check-item-m{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--text-2);cursor:pointer;padding:8px 10px;border-radius:8px;transition:background .15s;border:1px solid transparent}
+    .check-item-m:hover{background:rgba(255,255,255,0.03);border-color:var(--border)}
+    .check-item-m input{margin-top:3px;accent-color:var(--accent);width:14px;height:14px;cursor:pointer}
+    .check-title-m{flex:1;line-height:1.4;color:var(--text-1)}
+    .check-dur-m{font-size:11px;color:var(--text-3);white-space:nowrap;margin-top:2px}
+
+    /* PLAYLIST BADGE */
+    .playlist-badge{display:none;align-items:center;gap:6px;background:rgba(88,166,255,.1);border:1px solid rgba(88,166,255,.25);border-radius:8px;padding:7px 10px;font-size:11px;color:var(--blue)}
+    .playlist-badge.visible{display:flex}
+    .playlist-count{font-weight:700;font-size:14px;color:var(--blue)}
+
+    /* yt-dlp pill */
+    .ytdlp-pill{display:flex;align-items:center;gap:7px;background:var(--bg-card);border:1px solid var(--border);border-radius:9px;padding:8px 11px;margin-top:auto}
+    .ytdlp-dot{width:6px;height:6px;border-radius:50%;background:var(--text-3);flex-shrink:0}
+    .ytdlp-dot.ok{background:var(--accent);box-shadow:0 0 8px var(--accent);animation:blink 2.5s ease-in-out infinite}
+    .ytdlp-dot.err{background:var(--red)}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+    .ytdlp-label{font-size:10px;color:var(--text-2);flex:1}
+    .ytdlp-ver{font-size:10px;color:var(--text-3);font-family:monospace}
+
+    /* RIGHT PANEL */
+    .right-panel{display:flex;flex-direction:column;overflow:hidden}
+
+    /* CLIPBOARD BANNER */
+    .clip-banner{display:none;align-items:center;gap:8px;margin:12px 20px 0;background:rgba(45,217,163,.07);border:1px solid rgba(45,217,163,.2);border-radius:10px;padding:9px 12px;animation:fadeUp .3s ease}
+    .clip-banner.show{display:flex}
+    .clip-banner-txt{font-size:12px;color:var(--accent);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .clip-banner-txt span{color:var(--text-2);font-size:11px}
+    .btn-clip-use{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#06231c;border:none;border-radius:7px;padding:5px 12px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;transition:all .2s}
+    .btn-clip-use:hover{box-shadow:0 3px 10px var(--accent-glow);transform:translateY(-1px)}
+    .btn-clip-dismiss{background:none;border:none;color:var(--text-3);cursor:pointer;font-size:14px;padding:2px 5px;transition:color .15s;flex-shrink:0}
+    .btn-clip-dismiss:hover{color:var(--red)}
+
+    /* URL */
+    .url-section{padding:12px 20px 0;flex-shrink:0}
+    .url-label{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--text-3);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+    .url-label::after{content:'';flex:1;height:1px;background:var(--border)}
+    .url-box{position:relative;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;transition:border-color .2s,box-shadow .2s;overflow:hidden}
+    .url-box:focus-within{border-color:rgba(45,217,163,.35);box-shadow:0 0 0 4px rgba(45,217,163,.06)}
+    .url-input{width:100%;border:none;outline:none;background:transparent;font-family:'Inter',sans-serif;font-size:13px;color:var(--text-1);padding:12px 150px 12px 14px;user-select:text}
+    .url-input::placeholder{color:var(--text-3)}
+    .url-actions{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;gap:5px;align-items:center}
+    .btn-x{width:24px;height:24px;border:none;border-radius:6px;background:rgba(255,255,255,0.06);color:var(--text-3);cursor:pointer;font-size:11px;display:none;align-items:center;justify-content:center;transition:all .15s}
+    .btn-x.show{display:flex}.btn-x:hover{background:rgba(229,72,77,.15);color:var(--red)}
+    .btn-go{height:32px;padding:0 14px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#06231c;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:5px}
+    .btn-go:hover{box-shadow:0 4px 14px var(--accent-glow);transform:translateY(-1px)}.btn-go:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+
+    /* PLAYLIST TOGGLE */
+    .mode-row{display:flex;align-items:center;gap:8px;padding:8px 20px 0;flex-shrink:0}
+    .mode-toggle{display:flex;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+    .mode-btn{flex:1;padding:6px 14px;border:none;background:none;color:var(--text-2);font-family:'Inter',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+    .mode-btn.active{background:var(--accent-dim);color:var(--accent)}
+    .mode-btn:hover:not(.active){background:rgba(255,255,255,0.04);color:var(--text-1)}
+
+    /* FORMAT CARDS */
+    .options-section{padding:10px 20px 0;flex-shrink:0}
+    .opts-label{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--text-3);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+    .opts-label::after{content:'';flex:1;height:1px;background:var(--border)}
+    .opts-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+    .opt-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:10px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:2px}
+    .opt-card:hover{border-color:rgba(255,255,255,.15);background:rgba(255,255,255,0.04)}
+    .opt-card.selected{border-color:rgba(45,217,163,.4);background:rgba(45,217,163,.08)}
+    .opt-card-icon{font-size:16px;margin-bottom:3px}
+    .opt-card-name{font-size:11px;font-weight:600;color:var(--text-1)}
+    .opt-card-desc{font-size:10px;color:var(--text-3)}
+    .quality-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+    .quality-chip{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;background:var(--bg-card);border:1px solid var(--border);color:var(--text-2);cursor:pointer;transition:all .15s}
+    .quality-chip:hover{border-color:rgba(255,255,255,.15);color:var(--text-1)}
+    .quality-chip.active{background:var(--accent-dim);border-color:rgba(45,217,163,.3);color:var(--accent)}
+
+    /* FOLDER */
+    .folder-section{padding:10px 20px 0;flex-shrink:0}
+    .folder-label{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--text-3);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+    .folder-label::after{content:'';flex:1;height:1px;background:var(--border)}
+    .folder-box{display:flex;align-items:center;gap:8px}
+    .folder-path-btn{flex:1;display:flex;align-items:center;gap:9px;background:var(--bg-card);border:1px dashed rgba(255,255,255,0.08);border-radius:10px;padding:9px 12px;cursor:pointer;transition:all .2s;text-align:left}
+    .folder-path-btn:hover{border-color:rgba(45,217,163,.3);background:rgba(255,255,255,0.04)}
+    .folder-path-icon{font-size:15px;flex-shrink:0}
+    .folder-path-txt{font-size:11px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;user-select:text}
+    .folder-path-txt.set{color:var(--text-2)}
+    .btn-explorer{width:38px;height:38px;border:1px solid var(--border);border-radius:9px;background:var(--bg-card);color:var(--text-2);cursor:pointer;font-size:14px;display:none;align-items:center;justify-content:center;transition:all .2s}
+    .btn-explorer.show{display:flex}.btn-explorer:hover{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,.15);color:var(--text-1)}
+
+    /* PROGRESS */
+    .progress-area{padding:0 20px 10px;flex-shrink:0;display:none}
+    .progress-area.show{display:block}
+    .prog-header{display:flex;justify-content:space-between;font-size:11px;margin-bottom:6px}
+    .prog-status{color:var(--text-2)}.prog-pct{color:var(--accent);font-weight:700}
+    .prog-track{height:4px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden}
+    .prog-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent-dark),var(--accent));border-radius:4px;transition:width .35s ease;position:relative}
+    .prog-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 60%,rgba(255,255,255,.4));animation:shimmer 1.4s ease-in-out infinite}
+    @keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+    .prog-sub{margin-top:4px;font-size:10px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+    /* PLAYLIST PROGRESS */
+    .playlist-progress{display:none;align-items:center;gap:8px;margin-top:6px;font-size:11px;color:var(--text-2)}
+    .playlist-progress.show{display:flex}
+    .playlist-step{color:var(--blue);font-weight:700}
+
+    /* CTA */
+    .cta-section{padding:10px 20px 14px;flex-shrink:0}
+    .btn-download{width:100%;padding:13px;border:none;border-radius:12px;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:.3px;display:flex;align-items:center;justify-content:center;gap:9px;transition:all .25s;position:relative;overflow:hidden}
+    .btn-download::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--accent),var(--accent-dark));transition:opacity .25s}
+    .btn-download span{position:relative;z-index:1}
+    .btn-download:not(:disabled){color:#06231c}
+    .btn-download:not(:disabled):hover::before{opacity:.85}
+    .btn-download:not(:disabled):hover{box-shadow:0 8px 28px var(--accent-glow);transform:translateY(-1px)}
+    .btn-download:disabled{cursor:not-allowed;color:var(--text-3);background:rgba(255,255,255,0.04)}
+    .btn-download:disabled::before{display:none}
+    .btn-download.cancel-mode::before{display:none}
+    .btn-download.cancel-mode{background:rgba(229,72,77,.1);border:1px solid rgba(229,72,77,.25);color:var(--red)}
+    .btn-download.cancel-mode:hover{background:rgba(229,72,77,.25);box-shadow:none;transform:none}
+
+    /* FOOTER */
+    .status-bar{grid-row:3;display:flex;flex-direction:column;gap:0;background:rgba(255,255,255,0.02);border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0}
+    .status-main-row{display:flex;align-items:center;justify-content:space-between;padding:8px 18px}
+    .status-feedback-row{display:flex;justify-content:center;padding:6px 0 8px;border-top:1px solid rgba(255,255,255,0.05)}
+    .status-logo{height:22px;width:auto;display:block;opacity:.92}
+    .credit-links{display:flex;align-items:center;gap:6px}
+    .credit-icon-btn{background:none;border:1px solid rgba(255,255,255,.1);border-radius:6px;cursor:pointer;padding:4px 6px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.45);transition:all .2s}
+    .credit-icon-btn:hover{background:rgba(45,217,163,.12);border-color:rgba(45,217,163,.35);color:#5eead4;transform:translateY(-1px)}
+    .credit-wa-btn{background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.25);border-radius:6px;cursor:pointer;padding:4px 6px;display:flex;align-items:center;justify-content:center;color:#25D366;transition:all .2s}
+    .credit-wa-btn:hover{background:rgba(37,211,102,.2);transform:translateY(-1px)}
+    .btn-status{background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:'Inter',sans-serif;font-size:11px;padding:4px 8px;border-radius:6px;transition:all .2s}
+    .btn-status:hover{background:rgba(45,217,163,.1);color:#5eead4}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:100px;right:16px;max-width:290px;display:flex;align-items:center;gap:9px;padding:11px 16px;border-radius:12px;font-size:12px;font-weight:600;box-shadow:0 12px 40px rgba(0,0,0,.5);z-index:999;pointer-events:none;opacity:0;transform:translateY(6px) scale(.97);transition:opacity .25s,transform .25s}
+    .toast.show{opacity:1;pointer-events:auto;transform:none}
+    .toast.ok{background:rgba(45,217,163,.12);border:1px solid rgba(45,217,163,.25);color:var(--accent)}
+    .toast.err{background:rgba(224,133,133,.12);border:1px solid rgba(224,133,133,.25);color:var(--red)}
+
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .spin{display:inline-block;animation:spin .7s linear infinite}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    .fadein{animation:fadeUp .3s ease}
+  </style>
 </head>
 <body>
-    <div class="app">
-        <!-- Title Bar -->
-        <div class="titlebar">
-            <div class="titlebar-title">
-                <span class="icon">▼</span>
-                AT Youtube Downloader
-            </div>
-            <div class="titlebar-controls" dir="ltr">
-                <button class="btn-minimize" id="btn-minimize">_</button>
-                <button class="btn-close" id="btn-close">×</button>
-            </div>
-        </div>
+<div class="app">
 
-        <!-- Main Content -->
-        <div class="center-content">
-            <div class="title-container">
-                <h1>YouTube Downloader</h1>
-                <p class="credit-label">By Eng. Ahmed Atef</p>
-            </div>
-
-            <div class="status-msg" id="status-label">قم بلصق الرابط واختر الصيغة</div>
-
-            <div class="input-group">
-                <input type="text" id="url-input" placeholder="https://youtube.com/..." dir="ltr">
-                <button class="btn btn-secondary" id="paste-btn">لصق</button>
-            </div>
-
-            <div class="formats-group">
-                <label class="checkbox-label">
-                    <input type="checkbox" id="chk-mp3" checked>
-                    MP3 (صوت)
-                </label>
-                <label class="checkbox-label">
-                    <input type="checkbox" id="chk-mp4">
-                    MP4 (فيديو)
-                </label>
-            </div>
-
-            <button class="btn btn-primary big-btn" id="download-btn">اختيار مكان الحفظ وبدء التنزيل</button>
-
-            <button class="btn btn-secondary hidden" id="open-folder-btn">📂 فتح مجلد التنزيلات</button>
-
-            <!-- Progress section -->
-            <div class="progress-container hidden" id="progress-container">
-                <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" id="progress-bar"></div>
-                </div>
-            </div>
-        </div>
+  <!-- TITLEBAR -->
+  <div class="titlebar">
+    <div class="titlebar-logo"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"/></svg></div>
+    <span class="titlebar-name">AT Youtube Downloader</span>
+    <span class="titlebar-chip">v1.0</span>
+    <div class="win-btns">
+      <button class="win-btn wb-min" id="wb-min" title="Minimize">─</button>
+      <button class="win-btn wb-max" id="wb-max" title="Maximize">□</button>
+      <button class="win-btn wb-close" id="wb-close" title="Close" style="display:flex;align-items:center;justify-content:center"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
-    <script src="renderer.js"></script>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+      <div class="thumb-hero" id="thumb-hero">
+        <div class="thumb-empty" id="thumb-empty">
+          <div class="thumb-icon" style="font-size:32px"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg></div>
+          <div class="thumb-hint">Paste a YouTube URL<br>to see video info</div>
+        </div>
+        <img id="thumb-img" alt="thumbnail" />
+        <div class="thumb-badge" id="thumb-duration"></div>
+      </div>
+
+      <div class="meta-block">
+        <div class="meta-title empty" id="meta-title">No video loaded</div>
+        <div class="meta-rows" id="meta-rows" style="display:none">
+          <div class="meta-row"><span class="meta-row-icon" style="font-size:13px"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg></span><span class="meta-row-val" id="meta-channel">–</span></div>
+          <div class="meta-row"><span class="meta-row-icon" style="font-size:13px"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></span><span class="meta-row-val" id="meta-views">–</span></div>
+        </div>
+      </div>
+
+      <!-- Playlist info -->
+      
+      <div class="playlist-badge" id="playlist-badge">
+        <span style="font-size:22px;display:flex"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></span>
+        <div style="flex:1">
+          <div style="font-size:10px;color:var(--text-2)">Playlist</div>
+          <span class="playlist-count" id="playlist-count">0 / 0</span>
+          <span style="font-size:11px;color:var(--text-2)"> videos</span>
+        </div>
+      </div>
+      <button class="btn-edit-sel" id="btn-edit-sel">Edit Selected...</button>
+      <div style="flex:1" id="left-spacer"></div>
+
+      <div class="ytdlp-pill">
+        <div class="ytdlp-dot" id="ytdlp-dot"></div>
+        <span class="ytdlp-label" id="ytdlp-label">Checking yt-dlp…</span>
+        <span class="ytdlp-ver" id="ytdlp-ver"></span>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+
+      <!-- Clipboard banner -->
+      <div class="clip-banner" id="clip-banner">
+        <span style="font-size:18px;display:flex;flex-shrink:0"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg></span>
+        <div class="clip-banner-txt"><span>Clipboard: </span><span id="clip-url-preview"></span></div>
+        <button class="btn-clip-use" id="btn-clip-use">Use</button>
+        <button class="btn-clip-dismiss" id="btn-clip-dismiss" style="display:flex;align-items:center;justify-content:center"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      </div>
+
+      <!-- URL -->
+      <div class="url-section">
+        <div class="url-label">YouTube URL</div>
+        <div class="url-box">
+          <input class="url-input" id="url-input" type="text"
+            placeholder="https://www.youtube.com/watch?v=… or playlist" autocomplete="off" spellcheck="false" />
+          <div class="url-actions">
+            <button class="btn-x" id="btn-x" title="Clear" style="display:flex;align-items:center;justify-content:center"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            <button class="btn-go" id="btn-go">
+              <span id="go-icon" style="display:flex"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span><span id="go-label">Fetch</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mode toggle: Single / Playlist -->
+      <div class="mode-row">
+        <div class="mode-toggle">
+          <button class="mode-btn active" id="mode-single" onclick="setMode('single')"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg> Single Video</button>
+          <button class="mode-btn" id="mode-playlist" onclick="setMode('playlist')"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> Playlist</button>
+        </div>
+      </div>
+
+      <!-- Format -->
+      <div class="options-section">
+        <div class="opts-label">Format</div>
+        <div class="opts-grid">
+          <div class="opt-card" id="fmt-mp4" data-fmt="mp4" onclick="selectFmt('mp4')">
+            <div class="opt-card-icon" style="font-size:18px"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg></div>
+            <div class="opt-card-name">MP4 Video</div>
+            <div class="opt-card-desc">H.264 + AAC</div>
+          </div>
+          <div class="opt-card selected" id="fmt-mp3" data-fmt="mp3" onclick="selectFmt('mp3')">
+            <div class="opt-card-icon" style="font-size:18px"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg></div>
+            <div class="opt-card-name">MP3 Audio</div>
+            <div class="opt-card-desc">Best quality</div>
+          </div>
+          <div class="opt-card" id="fmt-raw" data-fmt="audio" onclick="selectFmt('audio')">
+            <div class="opt-card-icon" style="font-size:18px"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg></div>
+            <div class="opt-card-name">Raw Audio</div>
+            <div class="opt-card-desc">No conversion</div>
+          </div>
+        </div>
+        <div class="quality-row" id="qual-row-video" style="display:none">
+          <span class="quality-chip active" data-q="best">Best</span>
+          <span class="quality-chip" data-q="1080">1080p</span>
+          <span class="quality-chip" data-q="720">720p</span>
+          <span class="quality-chip" data-q="480">480p</span>
+          <span class="quality-chip" data-q="360">360p</span>
+        </div>
+        <div class="quality-row" id="qual-row-mp3">
+          <span class="quality-chip active" data-q="high">320 kbps</span>
+          <span class="quality-chip" data-q="medium">192 kbps</span>
+          <span class="quality-chip" data-q="low">128 kbps</span>
+        </div>
+      </div>
+
+      <!-- Folder -->
+      <div class="folder-section">
+        <div class="folder-label">Save to</div>
+        <div class="folder-box">
+          <button class="folder-path-btn" id="folder-btn">
+            <span class="folder-path-icon" style="display:flex"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></span>
+            <span class="folder-path-txt" id="folder-txt">Click to choose output folder…</span>
+          </button>
+          <button class="btn-explorer" id="btn-explorer" title="Open in Explorer"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></button>
+        </div>
+      </div>
+
+      <div style="flex:1"></div>
+
+      <!-- Progress -->
+      <div class="progress-area" id="prog-area">
+        <div class="prog-header">
+          <span class="prog-status" id="prog-status">Downloading…</span>
+          <span class="prog-pct" id="prog-pct">0%</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+        <div class="prog-sub" id="prog-sub"></div>
+        <div class="playlist-progress" id="playlist-prog">
+          <span style="display:flex;margin-right:4px"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></span> Item <span class="playlist-step" id="pl-current">1</span> of <span class="playlist-step" id="pl-total">?</span>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="cta-section">
+        <button class="btn-download" id="btn-dl" disabled>
+          <span id="dl-ico" style="display:flex"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></span><span id="dl-txt">Download</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="status-bar">
+    <div class="status-main-row" dir="ltr">
+      <img class="status-logo" alt="Ahmed Atef" id="footer-logo" />
+      <div class="credit-links">
+        <button class="credit-icon-btn" id="link-linkedin" title="LinkedIn">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="#0077B5"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </button>
+        <button class="credit-icon-btn" id="link-github" title="GitHub">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+        </button>
+        <button class="credit-icon-btn" id="link-email" title="Email">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </button>
+        <button class="credit-wa-btn" id="link-wa" title="WhatsApp">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="status-feedback-row">
+      <button class="btn-status" id="link-feedback" title="Send Feedback">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Send Feedback / إرسال ملاحظات
+      </button>
+    </div>
+  </div>
+
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Select Videos to Download</div>
+        <button class="btn-modal-outline" id="btn-check-all-m" style="padding:4px 10px;font-size:11px">Deselect All</button>
+      </div>
+      <div class="modal-body" id="modal-items"></div>
+      <div class="modal-footer">
+        <button class="btn-modal-outline" id="btn-modal-cancel">Cancel</button>
+        <button class="btn-modal-close" id="btn-modal-done">Done</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+
+
+// ── Window controls ──
+document.getElementById('wb-min').onclick = () => window.api.minimize();
+document.getElementById('wb-max').onclick = () => window.api.maximize();
+document.getElementById('wb-close').onclick = () => window.api.close();
+
+// ── Logo (set via JS to avoid HTML escaping issues) ──
+document.getElementById('footer-logo').src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAcwAAABgCAYAAACQckKnAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAACAnSURBVHhe7Z0LsFVXece5F1pttQ+t1lpbaSvWmmpsxcY0jV7bPKRpkpZOMJWmGHMzIZE4Qa9iMnjFlCEDQybvBEyGcH2AeZGSOwkSosQIFQmCMAyDYW5EJN4JExhuNE9jpp3fnfNnFh9r77322ecFfL+ZNeecfdb61mPvvb71+NZaY8Y4juM4juM4juM4juM4juM4juM4juM4juM4juM4juM4jtMGJk6c+BtnnnnmGy+66KJ39ff399xyyy0fW7Zs2WX33Xff51euXDn7/vvvv3L58uWfXrx48QXz5s07Y8aMGe8955xz3jJ+/PjXjhkzpsvKcxzHcZxjgtNPP/33Zs+efcrg4OCXdu/eve7ll19+/v/qZHh4eNujjz5648KFC/8FJTpmzJhuG5/jOI7jHDWgzO68886L9uzZs8EqPfj1r3/9yq9+9asXrXvllVdexsWuWxmwf//+ocHBwS9eeOGF73Tl6TiO4xwVMNQ6d+7c04eGhtaGSu3VV199VUoPRcnv8P8yEFYKFVnhf/v379+Fkj7ppJN+16bNcRzHcdrOySef/FtLly7tfeGFFw5IeakHaZVao5ECtT3QNWvWLJg0adKbbVodx3Ecp+X09PSMu+OOOz6BYpSiaoWSzELKM+zBojiZQ7VpdxzHcZyWMGvWrJNHRkZ+JsVkFVW70fCvfqPYfY7TcRzHaRknnnji6zZu3HinFFHYu+xEQkU+PDz8o/PPP//PbJ4cx3Ecp6H09fVNfOmll36J8kFRdlKPsohQsS9ZsuSTvp7TcRzHaQZd3/zmN6+QwrEGNgIFWtUKtplojpPvW7duvWfChAmvsRl1HMdxnHoZt3nz5mUomaxeZaiI8q51CuptHjhw4Cdnn332m2yGHcdxHKcUbEW3Z8+eH4RKxhIq0BdffPFZdvL5+c9/vkXX2mUxW4SUOZ8+r+k4juPUzcSJE3/7mWeeeQKlUqQsn3/++WfY+o6NC2rBu0455ZTfWbFixRf4v1N7muHwMfvamiJwHMdxnHzoWUpZZik7zVeOjIw8hXK0MgR7vuI/S067CYeOp02b9g6bfsdxHMfJYtzevXsfR4HkKTn919vbO8EKsKxbt25RGKbTCDc8qG3o7jiO4zj5bNmy5S6USJ5yCy1NbfgY7O2K/06dzwQNzz733HP72OrP5sFxHMdxDnH33Xd/BuWRNWcppDDLzPutX79+cRi2E1HahoaGvuvrNB3HcZwoM2fOfD/KouisShnJsCSjjFJh6JZwnawwQY2FBx544CqbB8dxHOc4hyFIFKXm8awSCZFC4RgtK6eALpQsYYviaDfK44wZM95rM+E4juMcx6TMWwrNQ9ZzAghKlrBFQ77tRkZALJcJlso4juM4xzOcOoKSSFFiUpY7duwYtHJSQMmGcjoZNR5Wr159jc2H4ziOc/wx9he/+MXTqfu/SqmiZK2gVFC2yDialOa55577xzYfjuM4znHEwMDAxSiElN4lChXY/o61mlZWKldeeeXfIy8lznajhsQTTzyxxubDcRzHOU7gpA6UVpneJf4efPDBOVZWGXp6esahdKWAbTydhnqZ06dPP8HmxXEcxzkOWLZs2WUogtSeXiOHJx966KEvy7DGxtNpqEFRW5vpOI7jHE+U7eVpvpFTSKysepg8efKfIO9oUJigdPqpJo7jOMcZ11xzzZkogNTepfxdf/31/2ZlWTho+uKLL/5Le90yPDz8I2QeLcY/NCy+//3v327z4TiO4xzD6IzLVGWlnmjRHquTJ09+K/737du3w/5nuemmm/4dv6lKu92oDDj2zObFcRzHOQY544wz/hAFkKosNRy5cePGO60sCwZB8s+wq/0/BMWTOiTcCUixL1y48Bybl3bAhgos71m2bNnl99577+c4Rq2ezSQS6T7ttNP+4Mwzz3wjn3L6feKJJ77OBijDCSec8Jt58uvYPKJ71qxZJ911110zcVhms4TKeqoK+V6wYMHZlD8W51OnTv0L66cI5dHmvVmOeKgDira1JG/yb2XEHP5OPfXUNxCujvvVkZx99tlvYlTtvvvu+zw2H5/97Gf/tupzxHRYmXKt6oL73a00dMIzV/b5quKIg3tJPXPoRqTCi42SSu3Zyd+nPvWpv7ayQjQvKkW8atWq/7Z+LI8//vgAfo+GuUzla2hoaK3NR6vp6+v7O05VsWmEr371q5da/1W58MIL32njCdm2bdsKG6YMt99++zQrM4QpBBsmC85m1XB/COe78uJY//XS39//IRsHPProozcWKSPBC2zDt4K1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';
+
+// ── State ──
+
+let videoInfo = null;
+let playlistEntries = [];
+
+let outputFolder = '';
+let isFetching = false;
+let isDownloading = false;
+let selectedFmt = 'mp3';
+let currentMode = 'single'; // 'single' | 'playlist'
+let lastClipUrl = '';
+let clipDismissed = false;
+
+// ── yt-dlp check ──
+(async () => {
+  const r = await window.api.checkYtdlp();
+  const dot = document.getElementById('ytdlp-dot');
+  const lbl = document.getElementById('ytdlp-label');
+  const ver = document.getElementById('ytdlp-ver');
+  if (r.available) {
+    dot.className = 'ytdlp-dot ok';
+    lbl.textContent = 'yt-dlp ready';
+    ver.textContent = r.version;
+  } else {
+    dot.className = 'ytdlp-dot err';
+    lbl.textContent = 'yt-dlp not found — pip install yt-dlp';
+  }
+})();
+
+// ── Clipboard auto-detect ──
+function isYouTubeUrl(s) {
+  return /https?:\/\/(www\.)?(youtube\.com|youtu\.be)\//i.test(s.trim());
+}
+
+async function checkClipboard() {
+  if (isDownloading || isFetching || clipDismissed) return;
+  try {
+    const text = (await window.api.readClipboard() || '').trim();
+    if (!text || text === lastClipUrl) return;
+    if (isYouTubeUrl(text)) {
+      lastClipUrl = text;
+      const urlInput = document.getElementById('url-input');
+      // Only show if not already in the input
+      if (urlInput.value.trim() === text) return;
+      document.getElementById('clip-url-preview').textContent = text.length > 55 ? text.slice(0, 55) + '…' : text;
+      document.getElementById('clip-banner').classList.add('show');
+    }
+  } catch(e) {}
+}
+
+setInterval(checkClipboard, 1200);
+checkClipboard();
+
+document.getElementById('btn-clip-use').onclick = () => {
+  const urlInput = document.getElementById('url-input');
+  urlInput.value = lastClipUrl;
+  document.getElementById('btn-x').classList.add('show');
+  document.getElementById('clip-banner').classList.remove('show');
+  // Auto-detect playlist
+  if (lastClipUrl.includes('list=')) setMode('playlist');
+  fetchInfo();
+};
+
+document.getElementById('btn-clip-dismiss').onclick = () => {
+  document.getElementById('clip-banner').classList.remove('show');
+  clipDismissed = true;
+  setTimeout(() => { clipDismissed = false; }, 30000); // re-enable after 30s
+};
+
+// ── Mode toggle ──
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('mode-single').classList.toggle('active', mode === 'single');
+  document.getElementById('mode-playlist').classList.toggle('active', mode === 'playlist');
+  resetVideoInfo();
+  refreshDLBtn();
+}
+
+// ── URL input ──
+const urlInput = document.getElementById('url-input');
+const btnX = document.getElementById('btn-x');
+const btnGo = document.getElementById('btn-go');
+
+urlInput.addEventListener('input', () => {
+  btnX.classList.toggle('show', urlInput.value.length > 0);
+  clipDismissed = false;
+});
+
+urlInput.addEventListener('keydown', e => { if (e.key === 'Enter') fetchInfo(); });
+
+btnX.onclick = () => {
+  urlInput.value = '';
+  btnX.classList.remove('show');
+  resetVideoInfo();
+  refreshDLBtn();
+};
+
+btnGo.onclick = fetchInfo;
+
+async function fetchInfo() {
+  const url = urlInput.value.trim();
+  if (!url || isFetching) return;
+  isFetching = true;
+  btnGo.disabled = true;
+  document.getElementById('go-icon').className = 'spin';
+  document.getElementById('go-icon').innerHTML = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>';
+  document.getElementById('go-label').textContent = 'Fetching…';
+  resetVideoInfo();
+  document.getElementById('clip-banner').classList.remove('show');
+
+  // Auto-detect playlist URL
+  const isPlaylist = currentMode === 'playlist' || url.includes('list=');
+  if (url.includes('list=') && currentMode === 'single') setMode('playlist');
+
+  try {
+    const info = await window.api.fetchInfo(url, isPlaylist);
+    if (info.ok) {
+      videoInfo = info;
+      applyVideoInfo(info);
+    } else {
+      toast('<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> ' + (info.error || 'Failed to fetch info'), 'err');
+    }
+  } catch(e) { toast('<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> ' + e.message, 'err'); }
+
+  isFetching = false;
+  btnGo.disabled = false;
+  document.getElementById('go-icon').className = '';
+  document.getElementById('go-icon').innerHTML = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>';
+  document.getElementById('go-label').textContent = 'Fetch';
+  refreshDLBtn();
+}
+
+
+
+function renderChecklist() {
+  const container = document.getElementById('modal-items');
+  container.innerHTML = '';
+  playlistEntries.forEach((entry, i) => {
+    const lbl = document.createElement('label');
+    lbl.className = 'check-item-m';
+    
+    const chk = document.createElement('input');
+    chk.type = 'checkbox';
+    chk.checked = true;
+    chk.value = i + 1;
+    chk.className = 'pl-checkbox';
+    chk.onchange = updateSelectedCount;
+
+    const tdiv = document.createElement('div');
+    tdiv.className = 'check-title-m';
+    tdiv.textContent = (i+1) + '. ' + (entry.title || 'Video ' + (i+1));
+    
+    const ddiv = document.createElement('div');
+    ddiv.className = 'check-dur-m';
+    ddiv.textContent = entry.duration || '';
+
+    lbl.appendChild(chk);
+    const textWrap = document.createElement('div');
+    textWrap.style.flex = '1';
+    textWrap.appendChild(tdiv);
+    if(entry.duration) textWrap.appendChild(ddiv);
+    lbl.appendChild(textWrap);
+    
+    container.appendChild(lbl);
+  });
+  updateSelectedCount();
+}
+
+let initialCheckboxState = [];
+document.getElementById('btn-edit-sel').onclick = () => {
+  const chks = document.querySelectorAll('.pl-checkbox');
+  initialCheckboxState = Array.from(chks).map(c => c.checked);
+  document.getElementById('modal-overlay').classList.add('show');
+};
+document.getElementById('btn-modal-cancel').onclick = () => {
+  const chks = document.querySelectorAll('.pl-checkbox');
+  chks.forEach((c, i) => { c.checked = initialCheckboxState[i]; });
+  updateSelectedCount();
+  document.getElementById('modal-overlay').classList.remove('show');
+};
+document.getElementById('btn-modal-done').onclick = () => {
+  document.getElementById('modal-overlay').classList.remove('show');
+};
+document.getElementById('btn-check-all-m').onclick = () => {
+  const chks = document.querySelectorAll('.pl-checkbox');
+  const allChecked = Array.from(chks).every(c => c.checked);
+  chks.forEach(c => c.checked = !allChecked);
+  updateSelectedCount();
+};
+
+function updateSelectedCount() {
+  const chks = document.querySelectorAll('.pl-checkbox');
+  const checked = Array.from(chks).filter(c => c.checked).length;
+  document.getElementById('btn-check-all-m').textContent = checked === chks.length ? 'Deselect All' : 'Select All';
+  document.getElementById('playlist-count').textContent = checked + ' / ' + chks.length;
+}
+
+
+function applyVideoInfo(info) {
+  const titleEl = document.getElementById('meta-title');
+  titleEl.textContent = info.title || 'Untitled';
+  titleEl.classList.remove('empty');
+
+  if (info.isPlaylist) {
+    document.getElementById('meta-channel').textContent = info.channel || '–';
+    document.getElementById('meta-views').textContent = info.count + ' videos';
+    document.getElementById('meta-rows').style.display = 'flex';
+    document.getElementById('playlist-badge').classList.add('visible');
+    playlistEntries = info.entries || [];
+    renderChecklist();
+    document.getElementById('btn-edit-sel').classList.add('show');
+    document.getElementById('left-spacer').style.display = 'none';
+    if (info.thumbnail) loadThumb(info.thumbnail);
+  } else {
+    document.getElementById('meta-channel').textContent = info.channel || '–';
+    document.getElementById('meta-views').textContent = info.viewCount ? fmtViews(info.viewCount) + ' views' : '–';
+    document.getElementById('meta-rows').style.display = 'flex';
+    document.getElementById('playlist-badge').classList.remove('visible');
+  document.getElementById('btn-edit-sel').classList.remove('show');
+  document.getElementById('left-spacer').style.display = 'block';
+    document.getElementById('btn-edit-sel').classList.remove('show');
+    document.getElementById('left-spacer').style.display = 'block';
+    if (info.thumbnail) loadThumb(info.thumbnail);
+    if (info.duration) {
+      const b = document.getElementById('thumb-duration');
+      b.textContent = info.duration; b.classList.add('visible');
+    }
+  }
+}
+
+function loadThumb(src) {
+  const img = document.getElementById('thumb-img');
+  img.src = src;
+  img.onload = () => { img.classList.add('loaded'); document.getElementById('thumb-empty').style.display = 'none'; };
+  img.onerror = () => {};
+}
+
+function resetVideoInfo() {
+  videoInfo = null;
+  const titleEl = document.getElementById('meta-title');
+  titleEl.textContent = 'No video loaded'; titleEl.classList.add('empty');
+  document.getElementById('meta-rows').style.display = 'none';
+  document.getElementById('playlist-badge').classList.remove('visible');
+  const img = document.getElementById('thumb-img');
+  img.classList.remove('loaded'); img.src = '';
+  document.getElementById('thumb-empty').style.display = 'flex';
+  document.getElementById('thumb-duration').classList.remove('visible');
+}
+
+function fmtViews(n) {
+  if (n>=1e9) return (n/1e9).toFixed(1)+'B';
+  if (n>=1e6) return (n/1e6).toFixed(1)+'M';
+  if (n>=1e3) return (n/1e3).toFixed(1)+'K';
+  return String(n);
+}
+
+// ── Format / Quality ──
+function selectFmt(fmt) {
+  selectedFmt = fmt;
+  document.querySelectorAll('.opt-card').forEach(c => c.classList.toggle('selected', c.dataset.fmt === fmt));
+  document.getElementById('qual-row-video').style.display = fmt === 'mp4' ? 'flex' : 'none';
+  document.getElementById('qual-row-mp3').style.display  = fmt === 'mp3' ? 'flex' : 'none';
+}
+
+document.querySelectorAll('.quality-chip').forEach(chip => {
+  chip.onclick = () => {
+    chip.parentElement.querySelectorAll('.quality-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+  };
+});
+
+selectFmt('mp3');
+
+function getQuality(fmt) {
+  if (fmt === 'mp3') { const a = document.querySelector('#qual-row-mp3 .quality-chip.active'); return a ? a.dataset.q : 'high'; }
+  const a = document.querySelector('#qual-row-video .quality-chip.active'); return a ? a.dataset.q : 'best';
+}
+
+// ── Folder ──
+document.getElementById('folder-btn').onclick = async () => {
+  const f = await window.api.pickFolder();
+  if (f) {
+    outputFolder = f;
+    const txt = document.getElementById('folder-txt');
+    txt.textContent = f; txt.classList.add('set');
+    document.getElementById('btn-explorer').classList.add('show');
+    refreshDLBtn();
+  }
+};
+
+document.getElementById('btn-explorer').onclick = () => { if (outputFolder) window.api.openTarget(outputFolder); };
+
+function refreshDLBtn() {
+  const btn = document.getElementById('btn-dl');
+  if (isDownloading) { btn.disabled = false; return; }
+  btn.disabled = !(videoInfo && outputFolder);
+}
+
+// ── Download ──
+document.getElementById('btn-dl').onclick = async () => {
+  if (isDownloading) {
+    window.api.cancelDownload(); setDLState(false);
+    toast('<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg> Download cancelled', 'err'); return;
+  }
+  if (!videoInfo || !outputFolder) return;
+
+  const fmt = selectedFmt;
+  const quality = getQuality(fmt);
+  const isPlaylist = currentMode === 'playlist';
+  
+  let items = [];
+  if (isPlaylist) {
+    items = Array.from(document.querySelectorAll('.pl-checkbox')).filter(c => c.checked).map(c => c.value);
+    if (items.length === 0) {
+      toast('<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> No videos selected', 'err');
+      return;
+    }
+  }
+
+  setDLState(true);
+  showProgress(true);
+  document.getElementById('playlist-prog').classList.toggle('show', isPlaylist);
+
+  window.api.onProgress(data => {
+    if (data.type === 'playlist-item') {
+      document.getElementById('pl-current').textContent = data.current;
+      document.getElementById('pl-total').textContent   = data.total;
+      const overall = Math.round((data.current - 1) / data.total * 100);
+      document.getElementById('prog-fill').style.width = overall + '%';
+      document.getElementById('prog-pct').textContent  = overall + '%';
+      document.getElementById('prog-status').textContent = `Item ${data.current} of ${data.total}`;
+    } else {
+      const pct = data.percent || 0;
+      document.getElementById('prog-fill').style.width = pct + '%';
+      document.getElementById('prog-pct').textContent  = pct.toFixed(1) + '%';
+      document.getElementById('prog-sub').textContent  = data.line || '';
+    }
+  });
+
+  const result = await window.api.startDownload({ url: urlInput.value.trim(), folder: outputFolder, format: fmt, quality, isPlaylist });
+  window.api.removeAll('download-progress');
+  window.api.removeAll('download-log');
+  setDLState(false);
+
+  if (result.ok) {
+    document.getElementById('prog-fill').style.width = '100%';
+    document.getElementById('prog-pct').textContent  = '100%';
+    document.getElementById('prog-status').textContent = '✅ Complete!';
+    toast('<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> ' + (isPlaylist ? 'Playlist downloaded!' : 'Downloaded successfully!'), 'ok');
+  } else {
+    showProgress(false);
+    toast('<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> ' + (result.error || 'Download failed'), 'err');
+  }
+};
+
+function setDLState(dl) {
+  isDownloading = dl;
+  const btn = document.getElementById('btn-dl');
+  const ico = document.getElementById('dl-ico');
+  const txt = document.getElementById('dl-txt');
+  if (dl) { btn.classList.add('cancel-mode'); btn.disabled=false; ico.innerHTML='<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>'; txt.textContent='Cancel'; }
+  else { btn.classList.remove('cancel-mode'); ico.innerHTML='<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>'; txt.textContent='Download'; refreshDLBtn(); }
+}
+
+function showProgress(show) {
+  document.getElementById('prog-area').classList.toggle('show', show);
+  if (show) {
+    document.getElementById('prog-fill').style.width='0%';
+    document.getElementById('prog-pct').textContent='0%';
+    document.getElementById('prog-status').textContent='Downloading…';
+    document.getElementById('prog-sub').textContent='';
+    document.getElementById('pl-current').textContent='1';
+    document.getElementById('pl-total').textContent='?';
+  }
+}
+
+// ── Footer links ──
+const extLinks = {
+  'link-linkedin': 'https://linkedin.com/in/ahmed-atef-8a73a8263',
+  'link-github':   'https://github.com/Ahmed-Atef-Tech',
+  'link-email':    'mailto:ahmed.atef.tech@gmail.com',
+  'link-wa':       'https://wa.me/201019876314',
+  'link-feedback': 'mailto:ahmed.atef.tech@gmail.com?subject=AT Youtube Downloader Feedback',
+};
+Object.entries(extLinks).forEach(([id, url]) => {
+  const el = document.getElementById(id);
+  if (el) el.onclick = () => window.api.openTarget(url);
+});
+
+// ── Toast ──
+let _tt;
+function toast(msg, type='ok') {
+  const el = document.getElementById('toast');
+  el.innerHTML = msg; el.className = 'toast ' + type + ' show';
+  clearTimeout(_tt); _tt = setTimeout(() => el.classList.remove('show'), 3500);
+}
+</script>
 </body>
 </html>
