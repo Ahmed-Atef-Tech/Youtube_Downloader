@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="icon.png" alt="AT Youtube Downloader Logo" width="120"/>
+  <img src="icon.png" alt="AT Youtube Downloader logo" width="120"/>
   <h1>AT Youtube Downloader</h1>
-  <p><em>تحميل يوتيوب بصيغة MP3 و MP4 بضغطة زر</em></p>
+  <p><em>Download YouTube videos and playlists as MP3 or MP4 in one click</em></p>
 
   <img src="https://img.shields.io/badge/Electron-UI-47848F?logo=electron&logoColor=white" />
   <img src="https://img.shields.io/badge/Python-3.10+-blue?logo=python&logoColor=white" />
@@ -11,56 +11,67 @@
 
 ---
 
-## 📌 نبذة عن البرنامج
+## About
 
-**AT Youtube Downloader** هو تطبيق سطح مكتب احترافي مبني بـ **Python** و **PyQt6**، يتيح للمستخدم تحميل مقاطع يوتيوب بجودة عالية بصيغة **MP3 (صوت)** أو **MP4 (فيديو)** عبر واجهة رسومية أنيقة وسهلة الاستخدام.
+**AT Youtube Downloader** is a desktop app for downloading YouTube content as **MP3 (audio)** or **MP4 (video)** through a clean, simple interface. It comes in two versions:
 
----
-
-## 🆕 الجديد في 2.0
-
-- 📃 **تحميل Playlist كاملة**: حط لينك الـ playlist، البرنامج يجيب كل الفيديوهات ويعرضها في قايمة تختار منها اللي عايزه
-- 📊 شريط تقدّم للـ playlist كلها (فيديو 3 من 12) جنب تقدّم الملف الحالي
-- 🎚️ اختيار الجودة: MP3 (عالية / متوسطة / منخفضة) أو MP4 حتى أعلى دقة متاحة
-- ⏹️ إلغاء التحميل في أي وقت
-- 🖥️ واجهة Electron جديدة بالكامل
-
-## ✨ المميزات
-
-- 🎵 تحميل الصوت بصيغة **MP3** بجودة 192kbps
-- 🎬 تحميل الفيديو بصيغة **MP4** بأعلى جودة متاحة
-- 📋 اكتشاف رابط يوتيوب تلقائياً من الـ Clipboard
-- 📂 اختيار مكان الحفظ بحرية
-- 🌙 واجهة داكنة (Dark Mode) حديثة
-- ⚡ التحميل في الخلفية دون تجميد الواجهة
+- **Electron app (v2.0):** the main version, with playlist support.
+- **Python / PyQt6 app** (`MP3 Downloader.py`): the original, lighter version.
 
 ---
 
-## 📸 واجهة البرنامج
+## What's new in 2.0
 
-> الواجهة الرئيسية بتصميم داكن أنيق مع شريط تقدم
+- 📃 **Whole playlists:** paste a playlist link and the app lists every video so you can pick the ones you want
+- 📊 Playlist progress (video 3 of 12) next to the progress of the current file
+- 🎚️ Quality choice: MP3 (high / medium / low) or MP4 up to the best available resolution
+- ⏹️ Cancel a download at any time
+- 🖥️ A completely new Electron interface
+
+## Features
+
+- 🎵 Download audio as **MP3**
+- 🎬 Download video as **MP4** in the best available quality
+- 📋 Picks up a YouTube link from the clipboard automatically
+- 📂 Save files anywhere you like
+- 🌙 Modern dark interface
+- ⚡ Downloads run in the background without freezing the app
 
 ---
 
-## 🚀 التثبيت والتشغيل
+## Run the Electron app and build an EXE
 
-### المتطلبات
+```bash
+npm install
+npm run start        # run locally
+npm run dist         # build Setup.exe into the dist folder
+```
+
+> The Electron app uses **yt-dlp**. Either install it on your PC (`pip install yt-dlp`),
+> or put `yt-dlp.exe` and `ffmpeg.exe` in a folder named `bin` next to `main.js`.
+> `npm run dist` then packs them into the app, so whoever installs it needs nothing else.
+
+---
+
+## Run the Python version
+
+### Requirements
 
 ```
 Python 3.10+
-ffmpeg  (مطلوب لتحويل MP3)
+ffmpeg  (needed to convert to MP3)
 ```
 
-### تثبيت المكتبات
+### Install the libraries
 
 ```bash
 pip install PyQt6 yt-dlp pyperclip
 ```
 
-> ⚠️ تأكد من تثبيت **ffmpeg** وإضافته لمتغير البيئة `PATH`  
-> تحميل ffmpeg: https://ffmpeg.org/download.html
+> ⚠️ Make sure **ffmpeg** is installed and added to your `PATH`.
+> Download ffmpeg: https://ffmpeg.org/download.html
 
-### تشغيل البرنامج
+### Start the app
 
 ```bash
 python "MP3 Downloader.py"
@@ -68,53 +79,39 @@ python "MP3 Downloader.py"
 
 ---
 
-## 📦 تشغيل النسخة الجاهزة (EXE)
+## Ready-made EXE
 
-لا تحتاج لتثبيت Python — قم بتحميل النسخة المجمّعة من صفحة [Releases](https://github.com/Ahmed-Atef-Tech/Youtube_Downloader/releases) وشغّل الملف مباشرة.
-
----
-
-## 🛠️ تشغيل نسخة Electron وبناء EXE
-
-```bash
-npm install
-npm run start        # تشغيل محلي
-npm run dist         # بناء ملف Setup.exe في فولدر dist
-```
-
-> نسخة Electron بتستخدم **yt-dlp**: يا إما يكون متسطب على الجهاز (`pip install yt-dlp`)،
-> يا إما تحط `yt-dlp.exe` و `ffmpeg.exe` في فولدر اسمه `bin` جنب `main.js`،
-> وساعتها `npm run dist` بيحطهم جوه البرنامج فاللي هيسطّبه مش محتاج حاجة تانية.
+No Python needed: download a packaged build from the [Releases](https://github.com/Ahmed-Atef-Tech/Youtube_Downloader/releases) page and run it.
 
 ---
 
-## 📋 كيفية الاستخدام
+## How to use
 
-1. افتح البرنامج
-2. الصق رابط يوتيوب (أو سيُكتشف تلقائياً)
-3. اختر الصيغة: **MP3** أو **MP4** أو كليهما
-4. اضغط **"اختيار مكان الحفظ وبدء التنزيل"**
-5. اختر مجلد الحفظ وانتظر اكتمال التحميل ✅
+1. Open the app
+2. Paste a YouTube video or playlist link (or let the app pick it up from the clipboard)
+3. For a playlist, tick the videos you want
+4. Choose the format and quality: **MP3** or **MP4**
+5. Choose a folder and start the download ✅
 
 ---
 
-## 🔧 استكشاف الأخطاء
+## Troubleshooting
 
-| المشكلة | الحل |
+| Problem | Fix |
 |---|---|
-| خطأ 403 Forbidden | `pip install -U yt-dlp` |
-| لا يتحول الملف لـ MP3 | تأكد من تثبيت ffmpeg وإضافته للـ PATH |
-| البرنامج لا يفتح | تأكد من تثبيت PyQt6 بشكل صحيح |
+| 403 Forbidden error | `pip install -U yt-dlp` (or replace `bin/yt-dlp.exe` with the latest one) |
+| The file doesn't convert to MP3 | Make sure ffmpeg is installed and on your `PATH`, or in the `bin` folder |
+| "yt-dlp not found" | Install it with `pip install yt-dlp`, or put `yt-dlp.exe` in the `bin` folder |
 
 ---
 
-## 👨‍💻 المطور
+## Developer
 
-**Eng. Ahmed Atef**  
+**Eng. Ahmed Atef**
 [![GitHub](https://img.shields.io/badge/GitHub-Ahmed--Atef--Tech-black?logo=github)](https://github.com/Ahmed-Atef-Tech)
 
 ---
 
-## 📄 الترخيص
+## License
 
-هذا المشروع مرخص تحت **ISC License** — راجع ملف [LICENSE](LICENSE) للتفاصيل.
+ISC License.

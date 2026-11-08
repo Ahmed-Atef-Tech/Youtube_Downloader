@@ -8,9 +8,9 @@ from PyQt6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QLabel,
                              QProgressBar, QHBoxLayout, QCheckBox)
 from PyQt6.QtCore import Qt, pyqtSignal, QObject
 from PyQt6.QtGui import QIcon
-import ctypes # مكتبة لتثبيت الأيقونة في شريط المهام
+import ctypes # used to pin the app icon in the taskbar
 
-# --- كلاس العمل في الخلفية (Worker Thread) ---
+# --- Background worker (Worker Thread) ---
 class DownloadWorker(QObject):
     finished = pyqtSignal()
     error = pyqtSignal(str)
@@ -56,29 +56,29 @@ class DownloadWorker(QObject):
         except Exception as e:
             self.error.emit(str(e))
 
-# --- النافذة الرئيسية ---
+# --- Main window ---
 class ModernDownloader(QWidget):
     def __init__(self):
         super().__init__()
         
-        # 1. تغيير اسم البرنامج
+        # 1. App name
         self.setWindowTitle("AT Youtube Downloader")
-        self.resize(550, 420) # زيادة الطول قليلاً لاستيعاب الاسم
+        self.resize(550, 420) # a little taller to fit the name
         self.last_folder = ""
 
-        # 2. إعداد الأيقونة (icon.png)
-        # هذا الكود يضمن ظهور الأيقونة في شريط المهام في ويندوز
+        # 2. App icon (icon.png)
+        # makes Windows show this icon in the taskbar
         myappid = 'mycompany.myproduct.subproduct.version' 
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
         
-        # تحديد مسار الأيقونة
+        # icon path
         script_dir = os.path.dirname(os.path.abspath(__file__))
         icon_path = os.path.join(script_dir, 'icon.png')
         
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
 
-        # تنسيق التصميم (CSS)
+        # styling (CSS)
         self.setStyleSheet("""
             QWidget {
                 background-color: #202020;
@@ -131,13 +131,13 @@ class ModernDownloader(QWidget):
         self.check_clipboard()
 
     def init_ui(self):
-        # العنوان الرئيسي
+        # main title
         self.title_label = QLabel("YouTube Downloader")
         self.title_label.setStyleSheet("font-size: 24px; font-weight: bold; color: #ffffff; margin-bottom: 0px;")
         self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.layout.addWidget(self.title_label)
 
-        # 3. اسم المطور (بشكل احترافي وصغير)
+        # 3. developer name (small)
         self.credit_label = QLabel("By Eng. Ahmed Atef")
         self.credit_label.setStyleSheet("""
             font-size: 11px; 
@@ -150,54 +150,54 @@ class ModernDownloader(QWidget):
         self.credit_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.layout.addWidget(self.credit_label)
 
-        # حالة البرنامج
-        self.status_label = QLabel("قم بلصق الرابط واختر الصيغة")
+        # status line
+        self.status_label = QLabel("Paste a link and choose a format")
         self.status_label.setStyleSheet("color: #aaaaaa; font-size: 13px;")
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.layout.addWidget(self.status_label)
 
-        # حقل الإدخال
+        # link input
         input_layout = QHBoxLayout()
         self.url_input = QLineEdit()
         self.url_input.setPlaceholderText("https://youtube.com/...")
         input_layout.addWidget(self.url_input)
         
-        self.paste_btn = QPushButton("لصق")
+        self.paste_btn = QPushButton("Paste")
         self.paste_btn.setObjectName("SecondaryBtn")
         self.paste_btn.setFixedWidth(70)
         self.paste_btn.clicked.connect(self.paste_link)
         input_layout.addWidget(self.paste_btn)
         self.layout.addLayout(input_layout)
 
-        # خيارات الصيغة
+        # format options
         formats_layout = QHBoxLayout()
         formats_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        self.chk_mp3 = QCheckBox("MP3 (صوت)")
+        self.chk_mp3 = QCheckBox("MP3 (audio)")
         self.chk_mp3.setChecked(True)
         formats_layout.addWidget(self.chk_mp3)
 
         formats_layout.addSpacing(20)
 
-        self.chk_mp4 = QCheckBox("MP4 (فيديو)")
+        self.chk_mp4 = QCheckBox("MP4 (video)")
         formats_layout.addWidget(self.chk_mp4)
         self.layout.addLayout(formats_layout)
 
-        # زر التنزيل
-        self.download_btn = QPushButton("اختيار مكان الحفظ وبدء التنزيل")
+        # download button
+        self.download_btn = QPushButton("Choose a folder and start downloading")
         self.download_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.download_btn.clicked.connect(self.start_download_process)
         self.layout.addWidget(self.download_btn)
 
-        # زر فتح المجلد
-        self.open_folder_btn = QPushButton("📂 فتح مجلد التنزيلات")
+        # open folder button
+        self.open_folder_btn = QPushButton("📂 Open downloads folder")
         self.open_folder_btn.setObjectName("SecondaryBtn")
         self.open_folder_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.open_folder_btn.clicked.connect(self.open_current_folder)
         self.open_folder_btn.setEnabled(False)
         self.layout.addWidget(self.open_folder_btn)
 
-        # شريط التقدم
+        # progress bar
         self.progress_bar = QProgressBar()
         self.progress_bar.setRange(0, 0)
         self.progress_bar.hide()
@@ -209,7 +209,7 @@ class ModernDownloader(QWidget):
         text = pyperclip.paste().strip()
         if "youtube.com" in text or "youtu.be" in text:
             self.url_input.setText(text)
-            self.status_label.setText("تم اكتشاف رابط! جاهز للتنزيل.")
+            self.status_label.setText("Link found. Ready to download.")
             self.status_label.setStyleSheet("color: #00e676;")
 
     def paste_link(self):
@@ -218,14 +218,14 @@ class ModernDownloader(QWidget):
     def start_download_process(self):
         url = self.url_input.text().strip()
         if not url:
-            QMessageBox.warning(self, "تنبيه", "الرجاء إدخال رابط يوتيوب صالح.")
+            QMessageBox.warning(self, "Notice", "Please enter a valid YouTube link.")
             return
 
         if not self.chk_mp3.isChecked() and not self.chk_mp4.isChecked():
-            QMessageBox.warning(self, "تنبيه", "الرجاء اختيار صيغة واحدة على الأقل.")
+            QMessageBox.warning(self, "Notice", "Please choose at least one format.")
             return
 
-        folder = QFileDialog.getExistingDirectory(self, "اختر مكان الحفظ")
+        folder = QFileDialog.getExistingDirectory(self, "Choose where to save")
         if not folder:
             return
         
@@ -233,7 +233,7 @@ class ModernDownloader(QWidget):
         self.open_folder_btn.setEnabled(True)
 
         self.toggle_ui_state(False)
-        self.status_label.setText("جاري التنزيل... يرجى الانتظار")
+        self.status_label.setText("Downloading... please wait")
         self.status_label.setStyleSheet("color: #0078d4;")
         self.progress_bar.show()
 
@@ -244,22 +244,22 @@ class ModernDownloader(QWidget):
 
     def on_download_success(self):
         self.toggle_ui_state(True)
-        self.status_label.setText("✅ تم التنزيل بنجاح!")
+        self.status_label.setText("✅ Download complete!")
         self.status_label.setStyleSheet("color: #00e676;")
         self.progress_bar.hide()
-        QMessageBox.information(self, "نجاح", "تم حفظ الملفات بنجاح.")
+        QMessageBox.information(self, "Done", "Files saved successfully.")
         self.open_current_folder()
 
     def on_download_error(self, err_msg):
         self.toggle_ui_state(True)
-        self.status_label.setText("❌ حدث خطأ")
+        self.status_label.setText("❌ Something went wrong")
         self.status_label.setStyleSheet("color: #ff5252;")
         self.progress_bar.hide()
         
         display_msg = err_msg
         if "403" in err_msg:
-            display_msg = "رفض يوتيوب الاتصال (403 Forbidden).\nيرجى تحديث المكتبة: 'pip install -U yt-dlp'"
-        QMessageBox.critical(self, "فشل التنزيل", display_msg)
+            display_msg = "YouTube refused the connection (403 Forbidden).\nUpdate yt-dlp: 'pip install -U yt-dlp'"
+        QMessageBox.critical(self, "Download failed", display_msg)
 
     def open_current_folder(self):
         if self.last_folder and os.path.exists(self.last_folder):
